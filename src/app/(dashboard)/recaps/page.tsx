@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -6,6 +5,7 @@ import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebas
 import { collectionGroup, query, where, orderBy, limit } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BrainCircuit, Sparkles, Clock, ArrowRight, MessageSquare, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
