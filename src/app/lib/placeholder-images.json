@@ -1,0 +1,35 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-study",
+      "description": "Collaborative study session",
+      "imageUrl": "https://picsum.photos/seed/nexus1/1200/800",
+      "imageHint": "collaborative study"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Student avatar 1",
+      "imageUrl": "https://picsum.photos/seed/avatar1/200/200",
+      "imageHint": "student portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Student avatar 2",
+      "imageUrl": "https://picsum.photos/seed/avatar2/200/200",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "room-coding",
+      "description": "Coding study room",
+      "imageUrl": "https://picsum.photos/seed/room1/600/400",
+      "imageHint": "coding workspace"
+    },
+    {
+      "id": "room-design",
+      "description": "Design study room",
+      "imageUrl": "https://picsum.photos/seed/room2/600/400",
+      "imageHint": "design studio"
+    }
+  ]
+}
