@@ -12,6 +12,8 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Play, Loader2, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 interface StartSessionDialogProps {
   roomId: string;
@@ -28,48 +30,69 @@ export function StartSessionDialog({ roomId, roomTitle }: StartSessionDialogProp
   const [duration, setDuration] = useState('25');
   const [isPomodoro, setIsPomodoro] = useState(false);
 
-  const handleStart = async () => {
+  const handleStart = () => {
     if (!user || !db || !goal) return;
     setLoading(true);
 
-    try {
-      const sessionData = {
-        roomId,
-        initiatorId: user.uid,
-        goal,
-        startTime: serverTimestamp(),
-        durationMinutes: isPomodoro ? 25 : parseInt(duration),
-        status: 'ACTIVE',
-        isPomodoro,
-        pomodoroPhase: isPomodoro ? 'FOCUS' : null,
-        completedIntervals: 0,
-        participantIds: [user.uid],
-        participants: {
-          [user.uid]: serverTimestamp()
-        }
-      };
+    const sessionData = {
+      roomId,
+      initiatorId: user.uid,
+      goal,
+      startTime: serverTimestamp(),
+      durationMinutes: isPomodoro ? 25 : parseInt(duration),
+      status: 'ACTIVE',
+      isPomodoro,
+      pomodoroPhase: isPomodoro ? 'FOCUS' : null,
+      completedIntervals: 0,
+      participantIds: [user.uid],
+      participants: {
+        [user.uid]: serverTimestamp()
+      }
+    };
 
-      const sessionRef = await addDoc(collection(db, 'rooms', roomId, 'sessions'), sessionData);
-      
-      await updateDoc(doc(db, 'rooms', roomId), {
-        activeSessionId: sessionRef.id
+    addDoc(collection(db, 'rooms', roomId, 'sessions'), sessionData)
+      .then((sessionRef) => {
+        const roomUpdate = { activeSessionId: sessionRef.id };
+        updateDoc(doc(db, 'rooms', roomId), roomUpdate)
+          .catch(async () => {
+            const permissionError = new FirestorePermissionError({
+              path: `rooms/${roomId}`,
+              operation: 'update',
+              requestResourceData: roomUpdate,
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+          });
+
+        const systemMsg = {
+          senderId: 'system',
+          senderName: 'Nexus AI',
+          content: `${user.displayName || 'Owner'} started a ${isPomodoro ? 'Pomodoro cycle' : 'focus session'}: "${goal}"`,
+          timestamp: serverTimestamp(),
+          type: 'system'
+        };
+        addDoc(collection(db, 'rooms', roomId, 'messages'), systemMsg)
+          .catch(async () => {
+            const permissionError = new FirestorePermissionError({
+              path: `rooms/${roomId}/messages`,
+              operation: 'create',
+              requestResourceData: systemMsg,
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+          });
+
+        toast({ title: isPomodoro ? 'Pomodoro Cycle Launched' : 'Focus Started', description: `Good luck with: ${goal}` });
+        setOpen(false);
+        setLoading(false);
+      })
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: `rooms/${roomId}/sessions`,
+          operation: 'create',
+          requestResourceData: sessionData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+        setLoading(false);
       });
-
-      await addDoc(collection(db, 'rooms', roomId, 'messages'), {
-        senderId: 'system',
-        senderName: 'Nexus AI',
-        content: `${user.displayName || 'Owner'} started a ${isPomodoro ? 'Pomodoro cycle' : 'focus session'}: "${goal}"`,
-        timestamp: serverTimestamp(),
-        type: 'system'
-      });
-
-      toast({ title: isPomodoro ? 'Pomodoro Cycle Launched' : 'Focus Started', description: `Good luck with: ${goal}` });
-      setOpen(false);
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

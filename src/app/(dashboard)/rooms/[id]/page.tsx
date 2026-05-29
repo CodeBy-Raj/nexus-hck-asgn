@@ -46,6 +46,8 @@ import { GenerateSummaryButton } from "@/components/rooms/generate-summary-butto
 import { playAlert } from "@/lib/audio-utils";
 import { useFocusMode } from "@/hooks/use-focus-mode";
 import { cn } from "@/lib/utils";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError, type SecurityRuleContext } from "@/firebase/errors";
 
 export default function StudyRoomPage() {
   const params = useParams();
@@ -82,26 +84,54 @@ export default function StudyRoomPage() {
     if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleEndSession = async (status: 'COMPLETED' | 'CANCELLED' = 'CANCELLED') => {
+  const handleEndSession = (status: 'COMPLETED' | 'CANCELLED' = 'CANCELLED') => {
     if (!activeSessionRef || !roomRef || !user) return;
     
-    await updateDoc(activeSessionRef as any, { status });
-    await updateDoc(roomRef, { activeSessionId: null });
+    const updateData = { status };
+    updateDoc(activeSessionRef as any, updateData)
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: (activeSessionRef as any).path,
+          operation: 'update',
+          requestResourceData: updateData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
+
+    const roomUpdate = { activeSessionId: null };
+    updateDoc(roomRef, roomUpdate)
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: roomRef.path,
+          operation: 'update',
+          requestResourceData: roomUpdate,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
     
-    addDoc(collection(db, "rooms", roomId, "messages"), {
+    const systemMsg = {
       senderId: 'system',
       senderName: 'Nexus AI',
       content: `Hub session concluded with status: ${status}.`,
       timestamp: serverTimestamp(),
       type: 'system'
-    });
+    };
+    addDoc(collection(db, "rooms", roomId, "messages"), systemMsg)
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: `rooms/${roomId}/messages`,
+          operation: 'create',
+          requestResourceData: systemMsg,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
 
     if (status === 'COMPLETED') {
       toast({ title: "Productivity Milestone!", description: "Target session results recorded." });
     }
   };
 
-  const handlePhaseSwitch = async () => {
+  const handlePhaseSwitch = () => {
     if (!activeSessionRef || !user || !activeSession) return;
     
     const isOwner = user.uid === activeSession.initiatorId || user.uid === room?.ownerId;
@@ -110,33 +140,54 @@ export default function StudyRoomPage() {
     const nextPhase = activeSession.pomodoroPhase === 'FOCUS' ? 'BREAK' : 'FOCUS';
     const nextDuration = nextPhase === 'BREAK' ? 5 : 25;
 
-    await updateDoc(activeSessionRef as any, {
+    const updateData = {
       pomodoroPhase: nextPhase,
       startTime: serverTimestamp(),
       durationMinutes: nextDuration,
       completedIntervals: increment(nextPhase === 'BREAK' ? 1 : 0)
-    });
+    };
 
-    addDoc(collection(db, "rooms", roomId, "messages"), {
+    updateDoc(activeSessionRef as any, updateData)
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: (activeSessionRef as any).path,
+          operation: 'update',
+          requestResourceData: updateData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
+
+    const systemMsg = {
       senderId: 'system',
       senderName: 'Nexus AI',
       content: `State transition: Moving to ${nextPhase} mode.`,
       timestamp: serverTimestamp(),
       type: 'system'
-    });
+    };
+    addDoc(collection(db, "rooms", roomId, "messages"), systemMsg)
+      .catch(async () => {
+        const permissionError = new FirestorePermissionError({
+          path: `rooms/${roomId}/messages`,
+          operation: 'create',
+          requestResourceData: systemMsg,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   useEffect(() => {
-    if (!activeSession || activeSession.status !== 'ACTIVE' || !activeSession.startTime) {
+    if (!activeSession || activeSession.status !== 'ACTIVE') {
       setTimeLeft(0);
       return;
     }
 
     const timer = setInterval(() => {
+      if (!activeSession.startTime) return;
+      
       const now = Date.now();
-      const startTime = activeSession.startTime.toMillis();
+      const startTimeMillis = activeSession.startTime.toMillis ? activeSession.startTime.toMillis() : now;
       const totalSeconds = activeSession.durationMinutes * 60;
-      const elapsedSeconds = Math.floor((now - startTime) / 1000);
+      const elapsedSeconds = Math.floor((now - startTimeMillis) / 1000);
       const remaining = Math.max(0, totalSeconds - elapsedSeconds);
       
       setTimeLeft(remaining);
