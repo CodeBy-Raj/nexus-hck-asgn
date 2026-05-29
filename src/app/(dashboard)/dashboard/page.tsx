@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -32,7 +31,6 @@ export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
   const db = useFirestore();
 
-  // 1. Define Queries (Order matters - define before use)
   const myRoomsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return query(
@@ -58,7 +56,6 @@ export default function DashboardPage() {
     return doc(db, 'users', user.uid);
   }, [db, user?.uid]);
 
-  // 2. Fetch Data
   const { data: myRooms, loading: roomsLoading, error: roomsError } = useCollection(myRoomsQuery);
   const { data: sessions, loading: sessionsLoading, error: sessionsError } = useCollection(sessionsQuery);
   const { data: profile } = useDoc(userDocRef);
@@ -71,7 +68,6 @@ export default function DashboardPage() {
     setHasHydrated(true);
   }, []);
 
-  // 3. Process Stats
   useEffect(() => {
     if (!hasHydrated || userLoading || (sessionsLoading && !sessions)) return;
 
@@ -79,14 +75,12 @@ export default function DashboardPage() {
     const hasRealSessions = sessions && sessions.length > 0;
     const now = new Date();
     
-    // Static trend map initialization
     const trendMap = new Map();
     for (let i = 29; i >= 0; i--) {
       trendMap.set(format(subDays(now, i), 'MMM dd'), 0);
     }
 
     if (isActuallyAnonymous && !hasRealSessions) {
-      // Mock data for Anonymous Guests
       const mockTrendData = Array.from({ length: 30 }).map((_, i) => ({
         date: format(subDays(now, 29 - i), 'MMM dd'),
         minutes: Math.round((Math.sin(i / 5) * 40 + 60) + Math.random() * 20)
@@ -112,7 +106,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Real data processing
     const totalMins = sessions?.reduce((acc, s) => acc + (s.durationMinutes || 0), 0) || 0;
     const totalHrs = totalMins / 60;
     
@@ -127,7 +120,6 @@ export default function DashboardPage() {
       heatmapSessions.push({ date: dateObj, minutes: s.durationMinutes || 0 });
     });
 
-    // Milestone Celebration (Client Side Only)
     if (totalHrs >= targetHours && targetHours > 0 && hasRealSessions) {
       const lastMilestone = localStorage.getItem('last_celebration_v3');
       if (lastMilestone !== targetHours.toString()) {
@@ -292,9 +284,17 @@ export default function DashboardPage() {
               <CardDescription className="text-xs">Launch a 25m Pomodoro cycle instantly.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
-                <Link href={myRooms?.[0] ? `/rooms/${myRooms[0].id}` : '/dashboard'}>Launch Solo Focus</Link>
-              </Button>
+              {myRooms && myRooms.length > 0 ? (
+                <Button asChild className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
+                  <Link href={`/rooms/${myRooms[0].id}`}>Launch Solo Focus</Link>
+                </Button>
+              ) : (
+                <CreateRoomDialog>
+                  <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
+                    Launch Solo Focus
+                  </Button>
+                </CreateRoomDialog>
+              )}
             </CardContent>
           </Card>
         </div>
