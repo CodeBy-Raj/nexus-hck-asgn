@@ -1,11 +1,10 @@
+"use client";
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useFirestore } from '@/firebase';
-import { onSnapshotsInSync } from 'firebase/firestore';
-import { WifiOff, Wifi, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useFirestore } from "@/firebase";
+import { onSnapshotsInSync } from "firebase/firestore";
+import { WifiOff, Wifi, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function SyncStatusBar() {
   const db = useFirestore();
@@ -13,22 +12,25 @@ export function SyncStatusBar() {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
+
+    let timer: NodeJS.Timeout;
 
     const updateStatus = () => setIsOnline(navigator.onLine);
-    window.addEventListener('online', updateStatus);
-    window.addEventListener('offline', updateStatus);
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
 
     const unsubscribe = onSnapshotsInSync(db, () => {
       setIsSyncing(true);
-      const timer = setTimeout(() => setIsSyncing(false), 800);
-      return () => clearTimeout(timer);
+      clearTimeout(timer);
+      timer = setTimeout(() => setIsSyncing(false), 800);
     });
 
     return () => {
-      window.removeEventListener('online', updateStatus);
-      window.removeEventListener('offline', updateStatus);
+      window.removeEventListener("online", updateStatus);
+      window.removeEventListener("offline", updateStatus);
       unsubscribe();
+      clearTimeout(timer);
     };
   }, [db]);
 
@@ -47,7 +49,7 @@ export function SyncStatusBar() {
           </div>
         </motion.div>
       )}
-      
+
       {isOnline && isSyncing && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
