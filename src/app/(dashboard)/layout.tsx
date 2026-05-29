@@ -1,11 +1,10 @@
-
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { Search, Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SyncStatusBar } from "@/components/layout/sync-status-bar";
+import { NotificationPopover } from "@/components/layout/notification-popover";
 import { Toaster as SonnerToaster } from 'sonner';
 
 export default function DashboardLayout({
@@ -32,10 +31,7 @@ export default function DashboardLayout({
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="relative text-muted-foreground">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-background" />
-              </Button>
+              <NotificationPopover />
               <Avatar className="w-9 h-9 border border-border">
                 <AvatarImage src="https://picsum.photos/seed/user/100/100" />
                 <AvatarFallback>NS</AvatarFallback>
