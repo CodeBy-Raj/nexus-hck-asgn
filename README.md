@@ -365,7 +365,7 @@ src/
 
 ```bash
 git clone <repository-url>
-cd nexus-hck-asgn
+cd <repository-folder>
 npm ci
 ```
 
@@ -403,7 +403,7 @@ npm run dev         # Start Next.js dev server (port 9002)
 npm run build       # Production build
 npm run start       # Run production server
 npm run typecheck   # TypeScript checks
-npm run lint        # Next lint (currently prompts if ESLint config missing)
+npm run lint        # Next lint (see Known Constraints section)
 npm run genkit:dev  # Start Genkit dev runtime
 npm run genkit:watch
 ```
@@ -477,17 +477,17 @@ Realtime behavior is implemented primarily using Firestore listeners (`onSnapsho
 
 Add screenshots to `docs/screenshots/` (or preferred folder) and replace placeholders below.
 
-1. `![Landing Page](./docs/screenshots/landing-page.png)`
-2. `![Dashboard](./docs/screenshots/dashboard.png)`
-3. `![Room Focus Tab](./docs/screenshots/room-focus.png)`
-4. `![Room Chat + Notes](./docs/screenshots/room-chat-notes.png)`
-5. `![AI Recaps](./docs/screenshots/ai-recaps.png)`
+1. ![Landing Page](./docs/screenshots/landing-page.png)
+2. ![Dashboard](./docs/screenshots/dashboard.png)
+3. ![Room Focus Tab](./docs/screenshots/room-focus.png)
+4. ![Room Chat + Notes](./docs/screenshots/room-chat-notes.png)
+5. ![AI Recaps](./docs/screenshots/ai-recaps.png)
 
 ---
 
 ## Known Constraints
 
-- `npm run lint` currently launches Next.js ESLint setup prompt when no ESLint config is present.
+- `npm run lint` currently launches Next.js ESLint setup prompt when no ESLint config is present. Recommended: run the prompt once and commit the generated ESLint config for stable lint behavior.
 - Production builds require valid Firebase env configuration at build/runtime (invalid API key causes prerender failure).
 - `next.config.ts` currently skips lint/type checks during build (`ignoreBuildErrors` and `ignoreDuringBuilds` enabled).
 
@@ -518,6 +518,7 @@ npm run build
 ## License
 
 No license file is currently present in this repository.  
+Until a license is added, default copyright rules apply.  
 If open-source distribution is intended, add a license file (for example: MIT).
 
 ---
@@ -527,4 +528,3 @@ If open-source distribution is intended, add a license file (for example: MIT).
 - Built with Next.js, Firebase, and Genkit.
 - UI primitives from shadcn/ui and Radix UI.
 - Icons by Lucide.
-
