@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,15 +16,19 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, Camera, Mail, Target, Shield, Settings as SettingsIcon, BrainCircuit } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'profile';
   
-  const userRef = user ? doc(db, 'users', user.uid) : null;
-  const { data: profile, loading: profileLoading } = useDoc(userRef as any);
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile, loading: profileLoading } = useDoc(userRef);
 
   const [formData, setFormData] = useState({
     displayName: '',
@@ -35,16 +39,23 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Sync profile data to local form state once on load
   useEffect(() => {
     if (profile) {
       setFormData({
-        displayName: profile.displayName || '',
-        photoURL: profile.photoURL || '',
+        displayName: profile.displayName || user?.displayName || '',
+        photoURL: profile.photoURL || user?.photoURL || '',
         bio: profile.bio || '',
         weeklyGoal: profile.weeklyGoal || 15
       });
+    } else if (user && !profileLoading) {
+      setFormData(prev => ({
+        ...prev,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+      }));
     }
-  }, [profile]);
+  }, [profile, user, profileLoading]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -72,7 +83,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (profileLoading) {
+  if (profileLoading && !profile) {
     return (
       <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -116,6 +127,7 @@ export default function ProfilePage() {
                     </AvatarFallback>
                   </Avatar>
                   <button 
+                    type="button"
                     className="absolute bottom-0 right-0 p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform"
                     onClick={() => setFormData(prev => ({ ...prev, photoURL: `https://picsum.photos/seed/${Math.random()}/200/200` }))}
                   >
@@ -253,5 +265,17 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }
