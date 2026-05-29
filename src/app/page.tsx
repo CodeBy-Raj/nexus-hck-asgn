@@ -13,51 +13,39 @@ import {
   Timer, 
   MessageSquare, 
   TrendingUp, 
-  CheckCircle2,
-  Lock,
-  Search
+  Home,
+  Info,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import placeholderData from "@/app/lib/placeholder-images.json";
+import { LimelightNav, NavItem } from "@/components/ui/limelight-nav";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const router = useRouter();
   const getImage = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
 
-  return (
-    <div className="min-h-screen flex flex-col selection:bg-primary/30">
-      {/* Sticky Header */}
-      <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="h-16 flex items-center justify-between px-6 lg:px-8 max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-              <BrainCircuit className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-headline font-bold text-xl tracking-tight">Nexus<span className="text-primary">Study</span></span>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</Link>
-            <Link href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">How it Works</Link>
-            <Link href="/guide" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Manual</Link>
-          </div>
+  const landingNavItems: NavItem[] = [
+    { id: 'home', icon: <Home />, label: 'Home', isActive: true, onClick: () => router.push('/') },
+    { id: 'features', icon: <Sparkles />, label: 'Features', onClick: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }) },
+    { id: 'manual', icon: <BookOpen />, label: 'Manual', onClick: () => router.push('/guide') },
+    { id: 'login', icon: <LogIn />, label: 'Sign In', onClick: () => router.push('/login') },
+    { id: 'register', icon: <UserPlus />, label: 'Register', onClick: () => router.push('/register') },
+  ];
 
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex rounded-xl">
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button asChild className="rounded-xl shadow-lg shadow-primary/10">
-              <Link href="/register">Join Free</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+  return (
+    <div className="min-h-screen flex flex-col selection:bg-primary/30 bg-background">
+      {/* Immersive Dock Nav */}
+      <LimelightNav items={landingNavItems} />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative pt-20 pb-24 lg:pt-32 lg:pb-40 overflow-hidden">
+        <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-40 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none opacity-20">
              <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-primary blur-[120px] rounded-full animate-pulse" />
              <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] bg-accent blur-[100px] rounded-full animate-pulse delay-700" />
@@ -119,7 +107,6 @@ export default function LandingPage() {
                   width={800} 
                   height={600}
                   className="w-full h-auto opacity-95 group-hover:scale-105 transition-transform duration-700"
-                  data-ai-hint="collaborative study"
                 />
                 <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl glass-morphism border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -265,7 +252,6 @@ export default function LandingPage() {
                   width={800} 
                   height={600}
                   className="rounded-[2rem] opacity-90 transition-transform duration-700 group-hover:scale-[1.01]"
-                  data-ai-hint="dashboard interface"
                 />
               </div>
             </div>
