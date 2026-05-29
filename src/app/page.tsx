@@ -14,17 +14,20 @@ import {
   MessageSquare, 
   TrendingUp, 
   Home,
-  Info,
   LogIn,
-  UserPlus
+  UserPlus,
+  Check,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import placeholderData from "@/app/lib/placeholder-images.json";
 import { LimelightNav, NavItem } from "@/components/ui/limelight-nav";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -33,14 +36,59 @@ export default function LandingPage() {
   const landingNavItems: NavItem[] = [
     { id: 'home', icon: <Home />, label: 'Home', isActive: true, onClick: () => router.push('/') },
     { id: 'features', icon: <Sparkles />, label: 'Features', onClick: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }) },
+    { id: 'pricing', icon: <Zap />, label: 'Pricing', onClick: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
     { id: 'manual', icon: <BookOpen />, label: 'Manual', onClick: () => router.push('/guide') },
     { id: 'login', icon: <LogIn />, label: 'Sign In', onClick: () => router.push('/login') },
-    { id: 'register', icon: <UserPlus />, label: 'Register', onClick: () => router.push('/register') },
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Scholar",
+      price: "$0",
+      description: "Ideal for individual deep-work sessions.",
+      features: [
+        { text: "3 Active Study Hubs", included: true },
+        { text: "5 Members per Hub", included: true },
+        { text: "5 AI Recaps per Month", included: true },
+        { text: "Standard Sync Protocol", included: true },
+        { text: "Priority Support", included: false },
+      ],
+      buttonText: "Start Free",
+      popular: false
+    },
+    {
+      name: "Nexus Pro",
+      price: "$9",
+      description: "Advanced tools for serious high-performers.",
+      features: [
+        { text: "Unlimited Study Hubs", included: true },
+        { text: "25 Members per Hub", included: true },
+        { text: "Unlimited AI Intel Recaps", included: true },
+        { text: "Priority Synchronization", included: true },
+        { text: "Custom Audio Alerts", included: true },
+      ],
+      buttonText: "Go Pro",
+      popular: true
+    },
+    {
+      name: "Academic Network",
+      price: "$29",
+      description: "Designed for labs and research groups.",
+      features: [
+        { text: "Everything in Pro", included: true },
+        { text: "50+ Members per Hub", included: true },
+        { text: "Institution Analytics", included: true },
+        { text: "SSO Integration", included: true },
+        { text: "Dedicated Success Manager", included: true },
+      ],
+      buttonText: "Contact Sales",
+      popular: false
+    }
   ];
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-primary/30 bg-background">
-      {/* Immersive Dock Nav */}
+      {/* Immersive Top Nav */}
       <LimelightNav items={landingNavItems} />
 
       <main className="flex-1">
@@ -122,28 +170,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Stats Strip */}
-        <section className="py-12 border-y border-border/40 bg-muted/30">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { label: 'Deep Work Minutes', value: '4.2M+', icon: Timer },
-                { label: 'Global Study Hubs', value: '18k+', icon: Globe },
-                { label: 'AI Recaps Generated', value: '95k+', icon: BrainCircuit },
-                { label: 'Scholar Satisfaction', value: '99.8%', icon: Sparkles },
-              ].map(stat => (
-                <div key={stat.label} className="text-center space-y-1">
-                  <div className="flex justify-center mb-2">
-                    <stat.icon className="w-5 h-5 text-primary opacity-60" />
-                  </div>
-                  <p className="text-2xl md:text-3xl font-headline font-bold text-foreground">{stat.value}</p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Features Section */}
         <section id="features" className="py-24 px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="text-center space-y-4 mb-20 max-w-2xl mx-auto">
@@ -203,8 +229,66 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section id="pricing" className="py-24 px-6 lg:px-8 max-w-7xl mx-auto bg-muted/20 border-y border-border/40">
+          <div className="text-center space-y-4 mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground tracking-tight">Nexus Scholarship Plans</h2>
+            <p className="text-muted-foreground text-lg">Choose the focus capacity that matches your academic goals.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pricingPlans.map((plan, i) => (
+              <Card key={i} className={cn(
+                "relative flex flex-col border-border/40 bg-card overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]",
+                plan.popular && "border-primary/50 ring-2 ring-primary/20"
+              )}>
+                {plan.popular && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1 text-[10px] font-bold uppercase tracking-widest rounded-bl-xl">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl font-headline">{plan.name}</CardTitle>
+                  <div className="flex items-baseline gap-1 mt-2">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground text-sm">/month</span>
+                  </div>
+                  <CardDescription className="mt-2">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, fi) => (
+                      <li key={fi} className="flex items-start gap-3 text-sm">
+                        {feature.included ? (
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                        ) : (
+                          <X className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
+                        )}
+                        <span className={cn(
+                          feature.included ? "text-foreground" : "text-muted-foreground/50"
+                        )}>{feature.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={cn(
+                      "w-full h-12 rounded-xl text-lg font-bold",
+                      plan.popular ? "bg-primary" : "bg-muted hover:bg-muted/80 text-foreground"
+                    )}
+                    asChild
+                  >
+                    <Link href="/register">{plan.buttonText}</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
+
         {/* Detailed Workflow Section */}
-        <section id="how-it-works" className="py-24 bg-card/30 border-y border-border/40">
+        <section id="how-it-works" className="py-24 bg-card/30">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-12">
               <div className="space-y-4">
@@ -253,33 +337,6 @@ export default function LandingPage() {
                   height={600}
                   className="rounded-[2rem] opacity-90 transition-transform duration-700 group-hover:scale-[1.01]"
                 />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonial Section */}
-        <section className="py-24 px-6 lg:px-8 max-w-7xl mx-auto text-center">
-          <h2 className="text-2xl font-bold uppercase tracking-widest text-muted-foreground/50 mb-12">Trusted by scholars at</h2>
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all">
-             <div className="text-2xl font-bold italic tracking-tighter">STANFORD</div>
-             <div className="text-2xl font-bold tracking-tight">MIT</div>
-             <div className="text-2xl font-bold serif">HARVARD</div>
-             <div className="text-2xl font-bold tracking-[0.2em]">OXFORD</div>
-          </div>
-
-          <div className="mt-32 max-w-3xl mx-auto">
-            <div className="relative">
-              <Sparkles className="absolute -top-8 -left-8 w-12 h-12 text-primary/20" />
-              <p className="text-2xl md:text-4xl font-headline font-medium leading-relaxed italic text-foreground">
-                "Nexus Study isn't just a timer; it's a cognitive force multiplier. The synchronized presence alone reduced my procrastination by 60% in one semester."
-              </p>
-              <div className="mt-8 flex flex-col items-center gap-2">
-                <div className="w-14 h-14 rounded-full border-2 border-primary overflow-hidden">
-                  <Image src="https://picsum.photos/seed/quote1/100/100" alt="Sarah J." width={56} height={56} />
-                </div>
-                <p className="font-bold">Dr. Marcus Vance</p>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Neuroscience Researcher</p>
               </div>
             </div>
           </div>
