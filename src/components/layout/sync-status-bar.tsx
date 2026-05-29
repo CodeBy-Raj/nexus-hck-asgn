@@ -14,25 +14,34 @@ export function SyncStatusBar() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    let timer: NodeJS.Timeout;
+    let hideTimer: NodeJS.Timeout;
+    let isCurrentlySyncing = false;
 
     const updateStatus = () => setIsOnline(navigator.onLine);
     window.addEventListener("online", updateStatus);
     window.addEventListener("offline", updateStatus);
 
     const unsubscribe = onSnapshotsInSync(db, () => {
-      setIsSyncing(true);
-      clearTimeout(timer);
-      timer = setTimeout(() => setIsSyncing(false), 800);
+      if (!isCurrentlySyncing) {
+        isCurrentlySyncing = true;
+        setIsSyncing(true);
+      }
+
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        isCurrentlySyncing = false;
+        setIsSyncing(false);
+      }, 1500);
     });
 
     return () => {
       window.removeEventListener("online", updateStatus);
       window.removeEventListener("offline", updateStatus);
       unsubscribe();
-      clearTimeout(timer);
+      clearTimeout(hideTimer);
     };
-  }, [db]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AnimatePresence>
