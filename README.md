@@ -1,7 +1,22 @@
 
-# Nexus Study | Real-time Collaboration Hub
+#  Collaborative Study Room Platform
 
+Students preparing for exams or interviews often struggle to stay consistent 
+while studying alone. Existing communication tools lack focused collaboration 
+and accountability features designed specifically for group study sessions. 
+This is a web-based collaborative study room platform where users can create 
+virtual study rooms, invite participants, track study sessions, and collaborate in 
+real-time.
 The ultimate collaborative platform for modern learners, built for high-performance deep work and AI-powered insights. Nexus Study transforms solitary studying into a synchronized, gamified, and intelligent team experience.
+
+## User Stories 
+As a User 
+• able to create study rooms.  
+• able to invite other users.  
+• able to start study sessions.  
+• able to track session durations.  
+• able to communicate within the room.  
+• able to view room activity history. 
 
 ## 🚀 Features
 
@@ -79,4 +94,3 @@ docker-compose up -d --build
 - `ESC`: Exit modals or forms.
 
 ---
-*Optimized for deep work and collaborative intelligence.*
