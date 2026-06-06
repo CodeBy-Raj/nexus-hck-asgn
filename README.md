@@ -1,5 +1,3 @@
-# Nexus Study — Collaborative Study Room Platform
-
 #  Collaborative Study Room Platform
 
 Students preparing for exams or interviews often struggle to stay consistent 
@@ -227,24 +225,6 @@ Realtime behavior is implemented primarily using Firestore listeners (`onSnapsho
 
 ---
 
-## Screenshots
-
-Add screenshots to `docs/screenshots/` (or preferred folder) and replace placeholders below.
-
-1. ![Landing Page](./docs/screenshots/landing-page.png)
-2. ![Dashboard](./docs/screenshots/dashboard.png)
-3. ![Room Focus Tab](./docs/screenshots/room-focus.png)
-4. ![Room Chat + Notes](./docs/screenshots/room-chat-notes.png)
-5. ![AI Recaps](./docs/screenshots/ai-recaps.png)
-
----
-
-## Known Constraints
-
-- `npm run lint` currently launches Next.js ESLint setup prompt when no ESLint config is present. Recommended: run the prompt once and commit the generated ESLint config for stable lint behavior.
-- Production builds require valid Firebase env configuration at build/runtime (invalid API key causes prerender failure).
-- `next.config.ts` currently skips lint/type checks during build (`ignoreBuildErrors` and `ignoreDuringBuilds` enabled).
-
 ---
 
 ## Contributing
@@ -269,10 +249,5 @@ npm run build
 
 ---
 
-## License
-
-No license file is currently present in this repository.  
-Until a license is added, default copyright rules apply.  
-If open-source distribution is intended, add a license file (for example: MIT).
 
 ---
