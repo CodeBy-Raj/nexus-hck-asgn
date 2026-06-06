@@ -4,7 +4,7 @@
     {
       "id": "hero-study",
       "description": "Collaborative study session",
-      "imageUrl": "https://picsum.photos/seed/nexus1/1200/800",
+      "imageUrl": "https://picsum.photos/seed/nexus-hero/1200/800",
       "imageHint": "collaborative study"
     },
     {
@@ -30,6 +30,18 @@
       "description": "Design study room",
       "imageUrl": "https://picsum.photos/seed/room2/600/400",
       "imageHint": "design studio"
+    },
+    {
+      "id": "focus-engine-preview",
+      "description": "Nexus Focus Engine Interface",
+      "imageUrl": "https://picsum.photos/seed/nexus-focus/800/600",
+      "imageHint": "dashboard interface"
+    },
+    {
+      "id": "ai-recap-preview",
+      "description": "AI Recap Analysis",
+      "imageUrl": "https://picsum.photos/seed/nexus-ai/800/600",
+      "imageHint": "artificial intelligence"
     }
   ]
 }

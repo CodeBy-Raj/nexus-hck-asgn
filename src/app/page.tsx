@@ -1,118 +1,457 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, ArrowRight, Sparkles, Zap, Shield, Globe, BookOpen } from "lucide-react";
+import { 
+  BrainCircuit, 
+  ArrowRight, 
+  Sparkles, 
+  Zap, 
+  Shield, 
+  Globe, 
+  BookOpen, 
+  Users, 
+  Timer, 
+  MessageSquare, 
+  TrendingUp, 
+  Home,
+  LogIn,
+  UserPlus,
+  Check,
+  X
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import placeholderData from "@/app/lib/placeholder-images.json";
+import { LimelightNav, NavItem } from "@/components/ui/limelight-nav";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
+  const router = useRouter();
+  const getImage = (id: string) => placeholderData.placeholderImages.find(img => img.id === id);
+
+  const landingNavItems: NavItem[] = [
+    { id: 'home', icon: <Home />, label: 'Home', isActive: true, onClick: () => router.push('/') },
+    { id: 'features', icon: <Sparkles />, label: 'Features', onClick: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }) },
+    { id: 'pricing', icon: <Zap />, label: 'Pricing', onClick: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
+    { id: 'manual', icon: <BookOpen />, label: 'Manual', onClick: () => router.push('/guide') },
+    { id: 'login', icon: <LogIn />, label: 'Sign In', onClick: () => router.push('/login') },
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Scholar",
+      price: "$0",
+      description: "Ideal for individual deep-work sessions.",
+      features: [
+        { text: "3 Active Study Hubs", included: true },
+        { text: "5 Members per Hub", included: true },
+        { text: "5 AI Recaps per Month", included: true },
+        { text: "Standard Sync Protocol", included: true },
+        { text: "Priority Support", included: false },
+      ],
+      buttonText: "Start Free",
+      popular: false
+    },
+    {
+      name: "Nexus Pro",
+      price: "$9",
+      description: "Advanced tools for serious high-performers.",
+      features: [
+        { text: "Unlimited Study Hubs", included: true },
+        { text: "25 Members per Hub", included: true },
+        { text: "Unlimited AI Intel Recaps", included: true },
+        { text: "Priority Synchronization", included: true },
+        { text: "Custom Audio Alerts", included: true },
+      ],
+      buttonText: "Go Pro",
+      popular: true
+    },
+    {
+      name: "Academic Network",
+      price: "$29",
+      description: "Designed for labs and research groups.",
+      features: [
+        { text: "Everything in Pro", included: true },
+        { text: "50+ Members per Hub", included: true },
+        { text: "Institution Analytics", included: true },
+        { text: "SSO Integration", included: true },
+        { text: "Dedicated Success Manager", included: true },
+      ],
+      buttonText: "Contact Sales",
+      popular: false
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <nav className="h-20 flex items-center justify-between px-8 max-w-7xl mx-auto w-full border-b border-border/40">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <BrainCircuit className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="font-headline font-bold text-xl tracking-tight">Nexus<span className="text-primary">Study</span></span>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link href="/guide" className="text-sm font-medium hover:text-primary transition-colors hidden md:flex items-center gap-2">
-            <BookOpen className="w-4 h-4" /> Instructions
-          </Link>
-          <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors hidden md:block">Login</Link>
-          <Button asChild className="rounded-xl">
-            <Link href="/dashboard">Get Started Free</Link>
-          </Button>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col selection:bg-primary/30 bg-background">
+      {/* Immersive Top Nav */}
+      <LimelightNav items={landingNavItems} />
 
       <main className="flex-1">
-        <section className="py-20 px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Next-Gen Study Collaboration</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-headline font-bold leading-tight">
-              Study Smarter with <span className="text-primary">Real-time</span> Hubs
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Nexus Study combines high-performance real-time collaboration with AI-powered insights to supercharge your learning flow.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="lg" className="h-14 px-8 text-lg gap-2 rounded-2xl shadow-xl shadow-primary/20" asChild>
-                <Link href="/dashboard">
-                  Enter the Hub <ArrowRight className="w-5 h-5" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-2xl border-white/10 hover:bg-white/5" asChild>
-                <Link href="/guide">Instructions</Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-6 justify-center lg:justify-start pt-4">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-background overflow-hidden ring-2 ring-primary/20">
-                    <Image src={`https://picsum.photos/seed/face${i}/100/100`} alt="user" width={40} height={40} />
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground">Join <span className="text-foreground font-bold">1,200+</span> active scholars online now</p>
-            </div>
+        {/* Hero Section */}
+        <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-40 overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none opacity-20">
+             <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-primary blur-[120px] rounded-full animate-pulse" />
+             <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] bg-accent blur-[100px] rounded-full animate-pulse delay-700" />
           </div>
 
-          <div className="relative group perspective-1000 hidden lg:block">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
-            <div className="relative bg-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl transition-all duration-500 group-hover:scale-[1.02]">
-              <Image 
-                src="https://picsum.photos/seed/nexus1/800/600" 
-                alt="Nexus Interface" 
-                width={800} 
-                height={600}
-                className="opacity-90"
-              />
+          <div className="px-6 lg:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8 text-center lg:text-left animate-in fade-in slide-in-from-bottom-6 duration-700">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Synchronized Deep Work</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-7xl font-headline font-bold leading-[1.1] tracking-tight text-foreground">
+                Study in <span className="text-primary">Real-Time</span> With Elite Scholars
+              </h1>
+              
+              <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Transform solitary study into a high-performance hub. Synchronized focus timers, AI recaps, and real-time presence for modern learners.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
+                <Button size="lg" className="h-14 px-8 text-lg gap-2 rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
+                  <Link href="/register">
+                    Start Focusing Now <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-2xl border-border bg-card/50 hover:bg-muted" asChild>
+                  <Link href="/guide">View Protocols</Link>
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-6 justify-center lg:justify-start pt-4">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted overflow-hidden">
+                      <Image 
+                        src={`https://picsum.photos/seed/scholar${i}/100/100`} 
+                        alt="scholar" 
+                        width={40} 
+                        height={40}
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm text-muted-foreground text-left">
+                  <p className="text-foreground font-bold">1,200+ Scholars Active</p>
+                  <p>In 45+ study hubs right now</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative hidden lg:block animate-in fade-in slide-in-from-right-10 duration-1000">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/30 to-accent/30 rounded-[2.5rem] blur-3xl opacity-30" />
+              <div className="relative rounded-[2rem] border border-border/50 bg-card overflow-hidden shadow-2xl">
+                <Image 
+                  src={getImage('hero-study')?.imageUrl || ''} 
+                  alt="Nexus Study Workspace" 
+                  width={800} 
+                  height={600}
+                  className="w-full h-auto opacity-95 group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl glass-morphism border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-white">
+                      Live Hub: Quantum Dynamics
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-primary text-primary-foreground">25:00</Badge>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="py-24 bg-card/30 border-y border-border/40">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="text-center space-y-4 mb-16">
-              <h2 className="text-3xl font-headline font-bold">Built for Deep Focus</h2>
-              <p className="text-muted-foreground">Every protocol you need to master your subjects in record time.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { title: 'Live Study Hubs', desc: 'Real-time collaborative rooms with synchronized timers and presence handling.', icon: Zap },
-                { title: 'Presence Tracking', desc: 'Real-time visibility into who is studying and their current focus state.', icon: Globe },
-                { title: 'Session Recaps', desc: 'Generative AI summaries of chat logs and activity for high-fidelity reviews.', icon: BrainCircuit }
-              ].map(feature => (
-                <div key={feature.title} className="p-8 rounded-3xl bg-background/50 border border-border/40 hover:border-primary/50 transition-all duration-300 space-y-4 group">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                    <feature.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-xl font-bold">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
+        {/* Features Section */}
+        <section id="features" className="py-24 px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="text-center space-y-4 mb-20 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground tracking-tight">Optimized for Academic Mastery</h2>
+            <p className="text-muted-foreground text-lg">Every feature is designed to reduce procrastination and maximize cognitive output.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                title: 'High-Fidelity Presence', 
+                desc: 'See exactly who is online and their current focus state. Synchronized body-doubling that eliminates the feeling of studying alone.', 
+                icon: Users,
+                color: 'text-blue-500'
+              },
+              { 
+                title: 'AI Intelligence Recaps', 
+                desc: 'Our Gemini-powered engine parses session chat logs to generate structured summaries, key points, and future study targets.', 
+                icon: BrainCircuit,
+                color: 'text-primary'
+              },
+              { 
+                title: 'Synchronized Focus Engine', 
+                desc: 'Universal Pomodoro or countdown timers that sync for everyone in the hub, creating group accountability for breaks and work.', 
+                icon: Zap,
+                color: 'text-amber-500'
+              },
+              { 
+                title: 'Contribution Matrix', 
+                desc: 'Track your focus trajectory with GitHub-style heatmaps and streak monitoring in your personal Scholar Terminal.', 
+                icon: TrendingUp,
+                color: 'text-emerald-500'
+              },
+              { 
+                title: 'Collaborative Boards', 
+                desc: 'Real-time markdown workspace for shared notes, active recall questions, and collaborative project mapping.', 
+                icon: MessageSquare,
+                color: 'text-purple-500'
+              },
+              { 
+                title: 'Encrypted Safe-Space', 
+                desc: 'Privacy-first architecture ensuring your study data and hub chats remain between you and your roster.', 
+                icon: Shield,
+                color: 'text-rose-500'
+              }
+            ].map((feature, i) => (
+              <div key={i} className="group p-8 rounded-3xl bg-card border border-border/40 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 space-y-6">
+                <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center ${feature.color} group-hover:scale-110 transition-transform`}>
+                  <feature.icon className="w-7 h-7" />
                 </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl font-bold text-foreground">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm">{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-24 px-6 lg:px-8 max-w-7xl mx-auto bg-muted/20 border-y border-border/40">
+          <div className="text-center space-y-4 mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground tracking-tight">Nexus Scholarship Plans</h2>
+            <p className="text-muted-foreground text-lg">Choose the focus capacity that matches your academic goals.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pricingPlans.map((plan, i) => (
+              <Card key={i} className={cn(
+                "relative flex flex-col border-border/40 bg-card overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]",
+                plan.popular && "border-primary/50 ring-2 ring-primary/20"
+              )}>
+                {plan.popular && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1 text-[10px] font-bold uppercase tracking-widest rounded-bl-xl">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl font-headline">{plan.name}</CardTitle>
+                  <div className="flex items-baseline gap-1 mt-2">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground text-sm">/month</span>
+                  </div>
+                  <CardDescription className="mt-2">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, fi) => (
+                      <li key={fi} className="flex items-start gap-3 text-sm">
+                        {feature.included ? (
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                        ) : (
+                          <X className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
+                        )}
+                        <span className={cn(
+                          feature.included ? "text-foreground" : "text-muted-foreground/50"
+                        )}>{feature.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={cn(
+                      "w-full h-12 rounded-xl text-lg font-bold",
+                      plan.popular ? "bg-primary" : "bg-muted hover:bg-muted/80 text-foreground"
+                    )}
+                    asChild
+                  >
+                    <Link href="/register">{plan.buttonText}</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Detailed Workflow Section */}
+        <section id="how-it-works" className="py-24 bg-card/30">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-12">
+              <div className="space-y-4">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground tracking-tight">The Scholar Protocol</h2>
+                <p className="text-muted-foreground text-lg">Three phases to transform your productivity cycle.</p>
+              </div>
+
+              <div className="space-y-8">
+                {[
+                  { 
+                    step: '01', 
+                    title: 'Establish Your Node', 
+                    desc: 'Create a subject-specific Study Hub or join an existing roster with a unique 6-character invite code.' 
+                  },
+                  { 
+                    step: '02', 
+                    title: 'Sync Focus Cycles', 
+                    desc: 'Launch a Pomodoro (25/5) or Custom timer. Everyone in the hub synchronizes to the same clock instantly.' 
+                  },
+                  { 
+                    step: '03', 
+                    title: 'Synthesize Intelligence', 
+                    desc: 'Conclude your session and trigger an AI Intel Analysis to recap the entire hub discussion for later review.' 
+                  }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-6">
+                    <div className="flex-none w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-headline font-bold text-xl">
+                      {item.step}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xl font-bold text-foreground">{item.title}</h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative group perspective-1000">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
+              <div className="relative rounded-[2.5rem] bg-background border border-border/50 p-2 overflow-hidden shadow-2xl">
+                <Image 
+                  src={getImage('focus-engine-preview')?.imageUrl || ''} 
+                  alt="Focus Engine Workflow" 
+                  width={800} 
+                  height={600}
+                  className="rounded-[2rem] opacity-90 transition-transform duration-700 group-hover:scale-[1.01]"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-24 bg-muted/20 border-t border-border/40">
+          <div className="max-w-3xl mx-auto px-6 lg:px-8 space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-headline font-bold text-foreground">Frequently Asked Protocols</h2>
+              <p className="text-muted-foreground">Everything you need to know about the Nexus network.</p>
+            </div>
+            
+            <Accordion type="single" collapsible className="w-full">
+              {[
+                { 
+                  q: "How does the real-time synchronization work?", 
+                  a: "We use high-frequency Firestore listeners that synchronize timer states, chat messages, and member presence in under 150ms globally." 
+                },
+                { 
+                  q: "Is the AI recap feature secure?", 
+                  a: "Yes. All analyses are performed in an isolated server context. Your data is not used to train global LLMs; it is processed once to generate your recap and then archived securely." 
+                },
+                { 
+                  q: "What is the 6-character code for?", 
+                  a: "Every Study Hub has a unique identifier. This code allows you to invite specific peers without needing public links, maintaining the privacy of your research node." 
+                },
+                { 
+                  q: "Can I use Nexus Study for solo sessions?", 
+                  a: "Absolutely. Our 'Solo Focus' launcher allows you to create private nodes where you can leverage the timer, AI recaps, and Scholar Terminal features individually." 
+                }
+              ].map((faq, i) => (
+                <AccordionItem key={i} value={`item-${i}`} className="border-border/40">
+                  <AccordionTrigger className="text-left font-bold hover:text-primary transition-colors">{faq.q}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
               ))}
+            </Accordion>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="py-24 px-6 lg:px-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 -z-10" />
+          <div className="max-w-4xl mx-auto text-center space-y-10">
+            <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground tracking-tight">
+              Ready to Upgrade Your <span className="text-primary">Learning Flow?</span>
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+              Join thousands of scholars worldwide who are already using Nexus Study to master their crafts. Establish your first hub today.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" className="h-16 px-10 text-xl gap-2 rounded-2xl shadow-2xl shadow-primary/20" asChild>
+                <Link href="/register">Enter the Hub Now</Link>
+              </Button>
+              <p className="text-xs font-bold uppercase tracking-tighter text-muted-foreground">No credit card required • Free forever for scholars</p>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="py-12 border-t border-border/40">
-        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-              <BrainCircuit className="w-4 h-4 text-primary-foreground" />
+      <footer className="py-20 border-t border-border/40 bg-card">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="col-span-1 md:col-span-2 space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <BrainCircuit className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="font-headline font-bold text-2xl">Nexus Study</span>
             </div>
-            <span className="font-headline font-bold">Nexus Study</span>
+            <p className="text-muted-foreground max-w-sm leading-relaxed">
+              The ultimate collaborative deep-work environment for modern students, researchers, and creators. Master your craft through collective focus.
+            </p>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors cursor-pointer">
+                <Globe className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors cursor-pointer">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors cursor-pointer">
+                <Users className="w-5 h-5" />
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">© 2024 Nexus Study Platform. Optimized for deep work.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/guide" className="text-xs text-muted-foreground hover:text-primary transition-colors">Scholar Manual</Link>
-            <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
+
+          <div className="space-y-6">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-foreground">Platform</h4>
+            <ul className="space-y-4 text-sm text-muted-foreground">
+              <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
+              <li><Link href="#how-it-works" className="hover:text-primary transition-colors">Scholar Protocol</Link></li>
+              <li><Link href="/guide" className="hover:text-primary transition-colors">Manual</Link></li>
+              <li><Link href="/dashboard" className="hover:text-primary transition-colors">Scholar Terminal</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-foreground">Company</h4>
+            <ul className="space-y-4 text-sm text-muted-foreground">
+              <li><Link href="#" className="hover:text-primary transition-colors">About Mission</Link></li>
+              <li><Link href="#" className="hover:text-primary transition-colors">Research</Link></li>
+              <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link href="#" className="hover:text-primary transition-colors">Terms of Use</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-12 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-xs text-muted-foreground">
+            © 2024 Nexus Study Platform. Designed for deep work and collective intelligence.
+          </p>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <Shield className="w-3 h-3 text-emerald-500" /> System Status: All Nodes Operational
           </div>
         </div>
       </footer>

@@ -1,12 +1,10 @@
-
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirestore, useUser, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import { collection, query, where, orderBy, limit, collectionGroup, doc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { BrainCircuit, Clock, Zap, PlayCircle, Plus, TrendingUp, Calendar, Target, Flame, History, AlertCircle, Sparkles } from "lucide-react";
 import { RoomCard } from "@/components/rooms/room-card";
 import { Progress } from "@/components/ui/progress";
@@ -18,15 +16,22 @@ import { ContributionHeatmap } from '@/components/dashboard/contribution-heatmap
 import { subDays, format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
+interface DashboardStats {
+  totalHrs: string;
+  rawHrs: number;
+  currentStreak: number;
+  peakStreak: number;
+  avgFlow: number;
+  trendData: { date: string; minutes: number }[];
+  heatmapData: { date: Date; minutes: number }[];
+  isDemo: boolean;
+}
+
 export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
   const db = useFirestore();
 
-  // Fetch real user profile for weeklyGoal
-  const { data: profile } = useDoc(user ? doc(db, 'users', user.uid) : null);
-  const targetHours = profile?.weeklyGoal || 15;
-
-  const roomsQuery = useMemoFirebase(() => {
+  const myRoomsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return query(
       collection(db, 'rooms'),
@@ -34,8 +39,6 @@ export default function DashboardPage() {
       orderBy('createdAt', 'desc')
     );
   }, [db, user?.uid]);
-
-  const { data: myRooms, loading: roomsLoading, error: roomsError } = useCollection(roomsQuery);
 
   const sessionsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -48,37 +51,49 @@ export default function DashboardPage() {
     );
   }, [db, user?.uid]);
 
+  const userDocRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+
+  const { data: myRooms, loading: roomsLoading, error: roomsError } = useCollection(myRoomsQuery);
   const { data: sessions, loading: sessionsLoading, error: sessionsError } = useCollection(sessionsQuery);
+  const { data: profile } = useDoc(userDocRef);
 
-  const stats = useMemo(() => {
-    if (userLoading || sessionsLoading) {
-      return { totalHrs: '0.0', rawHrs: 0, currentStreak: 0, peakStreak: 0, avgFlow: 0, trendData: [], heatmapData: [], isDemo: false };
-    }
+  const targetHours = profile?.weeklyGoal || 15;
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
-    const hasRealSessions = sessions && sessions.length > 0;
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated || userLoading || (sessionsLoading && !sessions)) return;
+
     const isActuallyAnonymous = user?.isAnonymous;
+    const hasRealSessions = sessions && sessions.length > 0;
+    const now = new Date();
     
-    // Initialize empty trend map
     const trendMap = new Map();
     for (let i = 29; i >= 0; i--) {
-      trendMap.set(format(subDays(new Date(), i), 'MMM dd'), 0);
+      trendMap.set(format(subDays(now, i), 'MMM dd'), 0);
     }
 
-    // Trigger Demo Mode ONLY for Anonymous users with no real data
     if (isActuallyAnonymous && !hasRealSessions) {
       const mockTrendData = Array.from({ length: 30 }).map((_, i) => ({
-        date: format(subDays(new Date(), 29 - i), 'MMM dd'),
+        date: format(subDays(now, 29 - i), 'MMM dd'),
         minutes: Math.round((Math.sin(i / 5) * 40 + 60) + Math.random() * 20)
       }));
 
       const mockHeatmapData: { date: Date; minutes: number }[] = [];
       for (let i = 0; i < 84; i++) {
         if (Math.random() > 0.3) {
-          mockHeatmapData.push({ date: subDays(new Date(), i), minutes: Math.round(Math.random() * 120 + 30) });
+          mockHeatmapData.push({ date: subDays(now, i), minutes: Math.round(Math.random() * 120 + 30) });
         }
       }
 
-      return {
+      setStats({
         totalHrs: '42.8',
         rawHrs: 42.8,
         currentStreak: 7,
@@ -87,10 +102,10 @@ export default function DashboardPage() {
         trendData: mockTrendData,
         heatmapData: mockHeatmapData,
         isDemo: true
-      };
+      });
+      return;
     }
 
-    // Real Data Processing
     const totalMins = sessions?.reduce((acc, s) => acc + (s.durationMinutes || 0), 0) || 0;
     const totalHrs = totalMins / 60;
     
@@ -108,12 +123,17 @@ export default function DashboardPage() {
     if (totalHrs >= targetHours && targetHours > 0 && hasRealSessions) {
       const lastMilestone = localStorage.getItem('last_celebration_v3');
       if (lastMilestone !== targetHours.toString()) {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#3b82f6', '#f59e0b', '#10b981'] });
+        confetti({ 
+          particleCount: 150, 
+          spread: 70, 
+          origin: { y: 0.6 }, 
+          colors: ['#3b82f6', '#f59e0b', '#10b981'] 
+        });
         localStorage.setItem('last_celebration_v3', targetHours.toString());
       }
     }
 
-    return {
+    setStats({
       totalHrs: totalHrs.toFixed(1),
       rawHrs: totalHrs,
       currentStreak: hasRealSessions ? 1 : 0,
@@ -122,10 +142,10 @@ export default function DashboardPage() {
       trendData: Array.from(trendMap).map(([date, minutes]) => ({ date, minutes })),
       heatmapData: heatmapSessions,
       isDemo: false
-    };
-  }, [sessions, targetHours, user?.isAnonymous, sessionsLoading, userLoading]);
+    });
+  }, [sessions, targetHours, user?.isAnonymous, sessionsLoading, userLoading, hasHydrated]);
 
-  if (userLoading || (sessionsLoading && !sessions)) {
+  if (userLoading || !stats) {
     return (
       <div className="p-6 space-y-8 max-w-7xl mx-auto animate-pulse">
         <div className="h-20 w-1/3 bg-muted/20 rounded-2xl" />
@@ -203,7 +223,7 @@ export default function DashboardPage() {
               </div>
             ) : myRooms && myRooms.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {myRooms.map((room) => <RoomCard key={room.id} room={{...room, id: room.id} as any} />)}
+                {myRooms.map((room) => <RoomCard key={room.id} room={room as any} />)}
               </div>
             ) : (
               <Card className="border-dashed border-2 border-white/5 bg-transparent flex flex-col items-center justify-center p-12 text-center rounded-3xl space-y-4">
@@ -264,9 +284,17 @@ export default function DashboardPage() {
               <CardDescription className="text-xs">Launch a 25m Pomodoro cycle instantly.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
-                <Link href={myRooms?.[0] ? `/rooms/${myRooms[0].id}` : '/dashboard'}>Launch Solo Focus</Link>
-              </Button>
+              {myRooms && myRooms.length > 0 ? (
+                <Button asChild className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
+                  <Link href={`/rooms/${myRooms[0].id}`}>Launch Solo Focus</Link>
+                </Button>
+              ) : (
+                <CreateRoomDialog>
+                  <Button className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl">
+                    Launch Solo Focus
+                  </Button>
+                </CreateRoomDialog>
+              )}
             </CardContent>
           </Card>
         </div>
